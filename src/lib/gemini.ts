@@ -1,4 +1,5 @@
-import { GoogleGenAI, Modality } from "@google/genai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { generateText } from "ai";
 
 export interface GeneratedImage {
   id: string;
@@ -13,7 +14,7 @@ export async function generateThumbnails(
   count: number = 3,
   onImageGenerated?: (image: GeneratedImage) => void,
 ): Promise<GeneratedImage[]> {
-  const ai = new GoogleGenAI({ apiKey });
+  const google = createGoogleGenerativeAI({ apiKey });
 
   const generatedImages: GeneratedImage[] = [];
 
@@ -22,8 +23,8 @@ export async function generateThumbnails(
   The image should be vibrant, high-contrast, and optimized for click-through rate. 
   Use bold colors and clear visual hierarchy. Aspect ratio should be 16:9.`;
 
-  // If we have a reference image, convert it to base64
-  let referenceImageData: { data: string; mimeType: string } | null = null;
+  // If we have a reference image, convert it to base64 data URL
+  let referenceImageDataUrl: string | null = null;
   if (referenceImage) {
     const buffer = await referenceImage.arrayBuffer();
     const base64 = btoa(
@@ -32,49 +33,68 @@ export async function generateThumbnails(
         "",
       ),
     );
-    referenceImageData = {
-      data: base64,
-      mimeType: referenceImage.type,
-    };
+    referenceImageDataUrl = `data:${referenceImage.type};base64,${base64}`;
   }
 
   // Generate images one at a time
   for (let i = 0; i < count; i++) {
     try {
-      const contents = referenceImageData
-        ? [
-            {
-              inlineData: {
-                mimeType: referenceImageData.mimeType,
-                data: referenceImageData.data,
-              },
-            },
-            { text: thumbnailPrompt },
-          ]
-        : [{ text: thumbnailPrompt }];
+      // Build the messages with optional reference image
+      const userContent: Array<
+        { type: "text"; text: string } | { type: "image"; image: string }
+      > = [];
 
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash-image",
-        contents: contents,
-        config: {
-          responseModalities: [Modality.TEXT, Modality.IMAGE],
+      if (referenceImageDataUrl) {
+        userContent.push({
+          type: "image",
+          image: referenceImageDataUrl,
+        });
+      }
+
+      userContent.push({
+        type: "text",
+        text: thumbnailPrompt,
+      });
+
+      const result = await generateText({
+        model: google("gemini-2.5-flash-image"),
+        messages: [
+          {
+            role: "user",
+            content: userContent,
+          },
+        ],
+        providerOptions: {
+          google: {
+            responseModalities: ["TEXT", "IMAGE"],
+            imageConfig: {
+              aspectRatio: "16:9",
+            },
+          },
         },
       });
 
-      // Extract image from response
-      if (response.candidates && response.candidates[0]?.content?.parts) {
-        for (const part of response.candidates[0].content.parts) {
-          if (part.inlineData) {
-            const newImage: GeneratedImage = {
-              id: `generated-${Date.now()}-${i}`,
-              data: part.inlineData.data || "",
-              mimeType: part.inlineData.mimeType || "image/png",
-            };
-            generatedImages.push(newImage);
-            // Immediately notify about the new image
-            onImageGenerated?.(newImage);
-            break; // Only take the first image from each response
-          }
+      // Extract images from result.files
+      for (const file of result.files) {
+        if (file.mediaType.startsWith("image/")) {
+          // Convert Uint8Array to base64
+          const uint8Array = await file.uint8Array;
+          const base64 = btoa(
+            uint8Array.reduce(
+              (data, byte) => data + String.fromCharCode(byte),
+              "",
+            ),
+          );
+
+          const newImage: GeneratedImage = {
+            id: `generated-${Date.now()}-${i}`,
+            data: base64,
+            mimeType: file.mediaType,
+          };
+          generatedImages.push(newImage);
+          // Immediately notify about the new image
+          onImageGenerated?.(newImage);
+          break; // Only take the first image from each response
         }
       }
     } catch (error) {
@@ -104,10 +124,11 @@ export function removeStoredApiKey(): void {
 // Validate API key by making a simple request
 export async function validateApiKey(apiKey: string): Promise<boolean> {
   try {
-    const ai = new GoogleGenAI({ apiKey });
-    await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp",
-      contents: [{ text: "Hello" }],
+    const google = createGoogleGenerativeAI({ apiKey });
+    await generateText({
+      model: google("gemini-2.0-flash"),
+      prompt: "Hello",
+      maxOutputTokens: 10,
     });
     return true;
   } catch {
