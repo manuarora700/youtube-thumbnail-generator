@@ -2,17 +2,19 @@
 
 A modern, open-source web application that uses AI to generate stunning YouTube thumbnails. Upload your image, describe what you want, and let AI create multiple professional thumbnail variations instantly.
 
-![Thumbnail AI Generator](https://img.shields.io/badge/React-18-blue) ![Vite](https://img.shields.io/badge/Vite-Latest-purple) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-cyan) ![OpenAI](https://img.shields.io/badge/OpenAI-DALL%E2%80%A2E%203-green)
+![Thumbnail AI Generator](https://img.shields.io/badge/React-19-blue) ![Vite](https://img.shields.io/badge/Vite-7-purple) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-cyan) ![Google Gemini](https://img.shields.io/badge/Google-Gemini%202.5-green)
 
 ## Features
 
-- **AI-Powered Generation**: Uses OpenAI's DALL-E 3 to create professional thumbnails
-- **Multiple Variations**: Generate 1-10 thumbnails per request with different styles
-- **Modern UI**: Clean, intuitive interface built with React and Tailwind CSS
+- **AI-Powered Generation**: Uses Google Gemini 2.5 Flash with image generation to create professional thumbnails
+- **Reference Image Support**: Upload a reference image to influence the generated thumbnails
+- **Multiple Variations**: Generate 3 thumbnails per request with different styles
+- **Modern UI**: Clean, intuitive interface built with React 19, TypeScript, and Tailwind CSS 4
 - **Secure**: API keys stored locally in your browser, never sent to external servers
-- **Customizable**: Adjust thumbnail count and provide detailed descriptions
-- **Easy Download**: Download generated thumbnails with a single click
-- **Smart Prompts**: Optimized prompts designed specifically for YouTube thumbnails
+- **Real-time Generation**: See thumbnails appear as they're generated
+- **Easy Download**: Download or remove generated thumbnails with a single click
+- **Smart Prompts**: Optimized prompts designed specifically for YouTube thumbnails with 16:9 aspect ratio
+- **Drag & Drop**: Upload images via drag-and-drop or file picker
 
 ## Quick Start
 
@@ -22,7 +24,7 @@ A modern, open-source web application that uses AI to generate stunning YouTube 
   - Check your version: `node --version`
   - If using nvm: `nvm use` (will use .nvmrc file)
   - Download Node.js: [https://nodejs.org](https://nodejs.org)
-- OpenAI API key ([Get one here](https://platform.openai.com/api-keys))
+- Google Gemini API key ([Get one here](https://aistudio.google.com/apikey))
 
 ### Installation
 
@@ -46,37 +48,43 @@ npm run dev
 
 ### Usage
 
-1. **Add Your API Key**: In the sidebar at the bottom left, enter your OpenAI API key and click "Save"
-2. **Configure Settings**: Adjust how many thumbnails you want to generate (1-10)
-3. **Upload Image**: Click the upload area to select an image
-4. **Add Description**: Describe what you want in your thumbnail (be specific!)
-5. **Generate**: Click the "Generate Thumbnails" button
-6. **Download**: Hover over any generated thumbnail and click "Download"
+1. **Add Your API Key**: In the top-right corner, enter your Gemini API key and click "Save"
+2. **Upload Image**: Click the upload area or drag-and-drop to select a reference image (optional)
+3. **Add Description**: Enter a detailed description of what you want in your thumbnail
+4. **Generate**: Click the "Generate Thumbnail" button (generates 3 variations)
+5. **Download**: Hover over any generated thumbnail and click the download icon
+6. **Remove**: Click the X icon to remove unwanted thumbnails
 
 ## How It Works
 
-The application uses OpenAI's DALL-E 3 API to generate thumbnails optimized for YouTube. Each generation includes:
+The application uses Google's Gemini 2.5 Flash image generation model to create thumbnails optimized for YouTube. Each generation includes:
 
 - **High contrast and vibrant colors** for better visibility
-- **16:9 aspect ratio** (1792x1024) perfect for YouTube
-- **HD quality** for professional results
-- **Multiple style variations** to give you options
+- **16:9 aspect ratio** perfect for YouTube
+- **Reference image integration** - your uploaded image influences the generated thumbnails
+- **Multiple style variations** - generates 3 unique thumbnails per request
 - **Optimized prompts** that emphasize clickability and engagement
+- **Real-time streaming** - see thumbnails as they're generated
 
 ## API Usage & Costs
 
-This application uses OpenAI's DALL-E 3 API. Pricing (as of 2025):
-- **DALL-E 3 HD (1792x1024)**: ~$0.080 per image
+This application uses Google's Gemini 2.5 Flash image generation model. Pricing:
+- Gemini offers a **free tier** with generous limits for developers
+- For production use, check current pricing at [Google AI Studio](https://aistudio.google.com/pricing)
 
-Generating 3 thumbnails costs approximately $0.24. [Check current pricing](https://openai.com/pricing)
+Generating 3 thumbnails typically falls within the free tier limits. [Check current pricing](https://ai.google.dev/pricing)
 
 ## Technology Stack
 
-- **React 18**: Modern UI framework
-- **Vite**: Lightning-fast build tool
-- **Tailwind CSS**: Utility-first styling
-- **OpenAI API**: DALL-E 3 image generation
-- **Lucide React**: Beautiful icons
+- **React 19**: Modern UI framework with latest features
+- **TypeScript**: Type-safe development
+- **Vite 7**: Lightning-fast build tool and dev server
+- **Tailwind CSS 4**: Utility-first styling with latest features
+- **Google Gemini API**: AI-powered image generation (Gemini 2.5 Flash)
+- **AI SDK by Vercel**: Type-safe AI integration
+- **Tabler Icons**: Beautiful icon library
+- **Motion (Framer Motion)**: Smooth animations
+- **React Dropzone**: Drag-and-drop file uploads
 
 ## Development
 
@@ -104,38 +112,52 @@ npm run lint
 yt-thumbnail-generator/
 ├── src/
 │   ├── components/
-│   │   ├── Sidebar.jsx      # Settings and API key configuration
-│   │   └── Home.jsx          # Main upload and generation interface
-│   ├── utils/
-│   │   └── ai.js             # OpenAI API integration and prompt engineering
-│   ├── App.jsx               # Main application component
+│   │   ├── upload.tsx        # Main upload interface with file dropzone
+│   │   ├── hero.tsx          # Landing page hero section
+│   │   └── Home.tsx          # Home page component
+│   ├── lib/
+│   │   ├── gemini.ts         # Google Gemini API integration
+│   │   └── utils.ts          # Utility functions (cn, etc.)
+│   ├── App.tsx               # Main application component
+│   ├── main.tsx              # Application entry point
 │   ├── App.css
 │   └── index.css
 ├── public/
+├── eslint.config.ts          # ESLint configuration
+├── tsconfig.json             # TypeScript configuration
+├── tailwind.config.js        # Tailwind CSS configuration
+├── vite.config.ts            # Vite configuration
 ├── package.json
 └── README.md
 ```
 
 ## Tips for Best Results
 
-1. **Be Specific**: Describe colors, mood, style, and key elements
+1. **Upload a Reference Image**: The AI works best when you provide a reference image to build upon
+   - Upload a photo, screenshot, or existing thumbnail to use as a base
+
+2. **Be Specific**: Describe colors, mood, style, and key elements
    - Good: "Epic gaming moment with neon blue and red colors, excited facial expression, bold text saying VICTORY"
    - Bad: "Gaming thumbnail"
 
-2. **Mention Text**: If you want text, specify it clearly
+3. **Mention Text**: If you want text, specify it clearly
    - Example: "Include large bold text saying 'TOP 10 TIPS'"
 
-3. **Describe Style**: Mention lighting, mood, and aesthetic
+4. **Describe Style**: Mention lighting, mood, and aesthetic
    - Example: "Cinematic dramatic lighting, dark background with spotlight"
 
-4. **Keep It Simple**: YouTube thumbnails work best when not overcrowded
+5. **Keep It Simple**: YouTube thumbnails work best when not overcrowded
+   - Focus on one main subject or message
+
+6. **Iterate**: Generate multiple times with different prompts to get the perfect thumbnail
 
 ## Security & Privacy
 
-- Your OpenAI API key is stored only in your browser's localStorage
-- No data is sent to any server except OpenAI's API
+- Your Gemini API key is stored only in your browser's localStorage
+- No data is sent to any server except Google's Gemini API
 - The application runs entirely client-side
 - You maintain full control of your API key and usage
+- Images are processed securely through Google's AI infrastructure
 
 ## Contributing
 
@@ -153,8 +175,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- Built with [OpenAI's DALL-E 3](https://openai.com/dall-e-3)
-- Icons by [Lucide](https://lucide.dev)
+- Built with [Google Gemini 2.5 Flash](https://ai.google.dev/)
+- AI SDK by [Vercel](https://sdk.vercel.ai/)
+- Icons by [Tabler Icons](https://tabler.io/icons)
+- Animations by [Motion (Framer Motion)](https://motion.dev/)
 - Styled with [Tailwind CSS](https://tailwindcss.com)
 
 ## Troubleshooting
@@ -174,21 +198,23 @@ nvm use
 
 ### API Key Not Working
 
-- Ensure your OpenAI API key starts with `sk-`
-- Check that you have credits in your OpenAI account
-- Verify the key has permissions for DALL-E 3
+- Ensure your Gemini API key is correct
+- Check that you have API access enabled in [Google AI Studio](https://aistudio.google.com/)
+- Verify the key has permissions for Gemini API
 
 ### Images Not Generating
 
 - Check browser console for errors
-- Verify your API key is saved (look at bottom-left of sidebar)
-- Ensure your OpenAI account has DALL-E 3 access
+- Verify your API key is saved (look at top-right corner)
+- Ensure your Gemini API has image generation enabled
+- Check that you haven't exceeded your API quota
 
 ## Support
 
 If you encounter any issues or have questions:
 - Open an issue on [GitHub Issues](https://github.com/yourusername/yt-thumbnail-generator/issues)
-- Check OpenAI's [API documentation](https://platform.openai.com/docs)
+- Check Google's [Gemini API documentation](https://ai.google.dev/docs)
+- Visit [AI SDK documentation](https://sdk.vercel.ai/docs) for integration details
 
 ## Roadmap
 
