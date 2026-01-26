@@ -14,6 +14,7 @@ import {
   setStoredApiKey,
   GeneratedImage,
 } from "../lib/gemini";
+import { Lightbox } from "./Lightbox";
 
 const mainVariant = {
   initial: {
@@ -49,6 +50,11 @@ export const FileUpload = ({
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImages, setLightboxImages] = useState<GeneratedImage[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   // Load API key from localStorage on mount
   useEffect(() => {
@@ -117,6 +123,12 @@ export const FileUpload = ({
     link.href = `data:${image.mimeType};base64,${image.data}`;
     link.download = `thumbnail-${index + 1}.png`;
     link.click();
+  };
+
+  const openLightbox = (images: GeneratedImage[], index: number) => {
+    setLightboxImages(images);
+    setLightboxIndex(index);
+    setLightboxOpen(true);
   };
 
   const handleClick = () => {
@@ -385,7 +397,8 @@ export const FileUpload = ({
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: idx * 0.1 }}
-                  className="relative group rounded-lg overflow-hidden border border-neutral-200 bg-white shadow-sm"
+                  className="relative group rounded-lg overflow-hidden border border-neutral-200 bg-white shadow-sm cursor-pointer"
+                  onClick={() => openLightbox(generatedImages, idx)}
                 >
                   <img
                     src={`data:${image.mimeType};base64,${image.data}`}
@@ -394,18 +407,22 @@ export const FileUpload = ({
                   />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <button
-                      onClick={() => handleDownload(image, idx)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownload(image, idx);
+                      }}
                       className="p-2 bg-white rounded-full hover:bg-neutral-100 transition-colors"
                       title="Download"
                     >
                       <IconDownload className="h-5 w-5 text-neutral-700" />
                     </button>
                     <button
-                      onClick={() =>
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setGeneratedImages((prev) =>
                           prev.filter((_, i) => i !== idx),
-                        )
-                      }
+                        );
+                      }}
                       className="p-2 bg-white rounded-full hover:bg-neutral-100 transition-colors"
                       title="Remove"
                     >
@@ -479,6 +496,15 @@ export const FileUpload = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Lightbox for full-size image viewing */}
+      <Lightbox
+        images={lightboxImages}
+        currentIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        onNavigate={setLightboxIndex}
+      />
     </>
   );
 };
