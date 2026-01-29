@@ -6,6 +6,7 @@ function App(): React.JSX.Element {
   const [prompt, setPrompt] = useState("");
   const [referenceImages, setReferenceImages] = useState<File[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -17,6 +18,8 @@ function App(): React.JSX.Element {
         onReferenceImagesChange={setReferenceImages}
         selectedTemplate={selectedTemplate}
         onTemplateSelect={setSelectedTemplate}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
 
       {/* Main Content */}
@@ -24,6 +27,8 @@ function App(): React.JSX.Element {
         prompt={prompt}
         referenceImages={referenceImages}
         selectedTemplate={selectedTemplate}
+        onMenuClick={() => setIsSidebarOpen(true)}
+        onPromptChange={setPrompt}
       />
     </div>
   );

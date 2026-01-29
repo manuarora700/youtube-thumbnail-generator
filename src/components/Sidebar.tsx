@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { motion } from "motion/react";
+import { useRef, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { IconPlus, IconX, IconCheck } from "@tabler/icons-react";
 import { cn } from "../lib/utils";
 
@@ -10,6 +10,8 @@ interface SidebarProps {
   onReferenceImagesChange: (files: File[]) => void;
   selectedTemplate: string | null;
   onTemplateSelect: (template: string | null) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const TEMPLATE_THUMBNAILS = [
@@ -25,9 +27,34 @@ export function Sidebar({
   onReferenceImagesChange,
   selectedTemplate,
   onTemplateSelect,
+  isOpen,
+  onClose,
 }: SidebarProps) {
   const referenceInputRef = useRef<HTMLInputElement>(null);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+
+  // Close sidebar on escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [isOpen, onClose]);
+
+  // Prevent body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   const handleReferenceImageAdd = (newFiles: File[]) => {
     onReferenceImagesChange([...referenceImages, ...newFiles]);
@@ -42,39 +69,75 @@ export function Sidebar({
   };
 
   return (
-    <div className="w-80 bg-white border-r border-neutral-200 h-full flex flex-col">
-      {/* Header */}
-      <div className="p-6 border-b border-neutral-100">
-        <h2 className="text-lg font-semibold text-neutral-900">Settings</h2>
-        <p className="text-sm text-neutral-500 mt-1">
-          Configure your thumbnail generation
-        </p>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-6 space-y-8">
-        {/* Prompt Section */}
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-2">
-            Prompt
-          </label>
-          <textarea
-            value={prompt}
-            onChange={(e) => onPromptChange(e.target.value)}
-            placeholder="Describe your thumbnail... e.g., 'A tech review thumbnail with bold text and vibrant colors'"
-            className="w-full h-32 p-3 text-sm text-neutral-700 bg-neutral-50 border border-neutral-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:border-transparent placeholder:text-neutral-400"
+    <>
+      {/* Mobile Overlay */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar */}
+      <motion.div
+        initial={false}
+        animate={{
+          x: isOpen ? 0 : "-100%",
+        }}
+        transition={{ type: "spring", damping: 30, stiffness: 300 }}
+        className={cn(
+          "w-80 bg-white border-r border-neutral-200 h-full flex flex-col",
+          "fixed lg:relative inset-y-0 left-0 z-50",
+          "lg:translate-x-full"
+        )}
+      >
+        {/* Header */}
+        <div className="p-4 sm:p-6 border-b border-neutral-100 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-neutral-900">Settings</h2>
+            <p className="text-sm text-neutral-500 mt-1">
+              Configure your thumbnail generation
+            </p>
+          </div>
+          {/* Mobile Close Button */}
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+            aria-label="Close sidebar"
+          >
+            <IconX className="h-5 w-5 text-neutral-600" />
+          </button>
         </div>
 
-        {/* Template Thumbnails Section */}
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-2">
-            Style Template
-            <span className="text-neutral-400 font-normal ml-1">(optional)</span>
-          </label>
-          <p className="text-xs text-neutral-500 mb-3">
-            Select a style to guide the AI generation
-          </p>
-          <div className="grid grid-cols-3 gap-2">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 sm:space-y-8">
+          {/* Prompt Section */}
+          <div className="hidden lg:block">
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
+              Prompt
+            </label>
+            <textarea
+              value={prompt}
+              onChange={(e) => onPromptChange(e.target.value)}
+              placeholder="Describe your thumbnail... e.g., 'A tech review thumbnail with bold text and vibrant colors'"
+              className="w-full h-24 sm:h-32 p-3 text-sm text-neutral-700 bg-neutral-50 border border-neutral-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:border-transparent placeholder:text-neutral-400"
+            />
+          </div>
+
+          {/* Template Thumbnails Section */}
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
+              Style Template
+              <span className="text-neutral-400 font-normal ml-1">(optional)</span>
+            </label>
+            <p className="text-xs text-neutral-500 mb-3">
+              Select a style to guide the AI generation
+            </p>
+            <div className="grid grid-cols-3 gap-2">
             {TEMPLATE_THUMBNAILS.map((template) => (
               <button
                 key={template.id}
@@ -128,45 +191,45 @@ export function Sidebar({
           )}
         </div>
 
-        {/* Reference Images Section */}
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-2">
-            Reference Images
-            <span className="text-neutral-400 font-normal ml-1">(optional)</span>
-          </label>
-          <p className="text-xs text-neutral-500 mb-3">
-            Add your own images for style inspiration
-          </p>
+          {/* Reference Images Section */}
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
+              Reference Images
+              <span className="text-neutral-400 font-normal ml-1">(optional)</span>
+            </label>
+            <p className="text-xs text-neutral-500 mb-3">
+              Add your own images for style inspiration
+            </p>
 
-          <input
-            ref={referenceInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(e) =>
-              handleReferenceImageAdd(Array.from(e.target.files || []))
-            }
-            className="hidden"
-          />
+            <input
+              ref={referenceInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) =>
+                handleReferenceImageAdd(Array.from(e.target.files || []))
+              }
+              className="hidden"
+            />
 
-          <div className="flex flex-wrap gap-2">
-            {/* Add Reference Button */}
-            <button
-              onClick={() => referenceInputRef.current?.click()}
-              className="w-16 h-16 border-2 border-dashed border-neutral-300 rounded-lg flex items-center justify-center hover:border-neutral-400 hover:bg-neutral-50 transition-colors"
-              title="Add reference image"
-            >
-              <IconPlus className="h-5 w-5 text-neutral-400" />
-            </button>
-
-            {/* Reference Image Thumbnails */}
-            {referenceImages.map((file, idx) => (
-              <motion.div
-                key={`ref-${idx}-${file.name}`}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="relative w-16 h-16 rounded-lg overflow-hidden border border-neutral-200 group"
+            <div className="flex flex-wrap gap-2">
+              {/* Add Reference Button */}
+              <button
+                onClick={() => referenceInputRef.current?.click()}
+                className="w-14 h-14 sm:w-16 sm:h-16 border-2 border-dashed border-neutral-300 rounded-lg flex items-center justify-center hover:border-neutral-400 hover:bg-neutral-50 transition-colors"
+                title="Add reference image"
               >
+                <IconPlus className="h-4 w-4 sm:h-5 sm:w-5 text-neutral-400" />
+              </button>
+
+              {/* Reference Image Thumbnails */}
+              {referenceImages.map((file, idx) => (
+                <motion.div
+                  key={`ref-${idx}-${file.name}`}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden border border-neutral-200 group"
+                >
                 <img
                   src={URL.createObjectURL(file)}
                   alt={`Reference ${idx + 1}`}
@@ -183,14 +246,15 @@ export function Sidebar({
             ))}
           </div>
 
-          {referenceImages.length > 0 && (
-            <p className="text-xs text-neutral-400 mt-2">
-              {referenceImages.length} reference image
-              {referenceImages.length > 1 ? "s" : ""} added
-            </p>
-          )}
+            {referenceImages.length > 0 && (
+              <p className="text-xs text-neutral-400 mt-2">
+                {referenceImages.length} reference image
+                {referenceImages.length > 1 ? "s" : ""} added
+              </p>
+            )}
+          </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </>
   );
 }

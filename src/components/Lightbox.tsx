@@ -85,9 +85,9 @@ export function Lightbox({
           {currentIndex > 0 && (
             <button
               onClick={handlePrevious}
-              className="absolute left-4 p-3 text-white/80 hover:text-white transition-colors rounded-full hover:bg-white/10"
+              className="absolute left-0 sm:left-4 p-3 text-white/80 hover:text-white bg-black/20 transition-colors rounded-full hover:bg-white/10 z-50"
             >
-              <IconChevronLeft className="h-8 w-8" />
+              <IconChevronLeft className="h-4 w-4 md:h-8 md:w-8" />
             </button>
           )}
 
@@ -115,9 +115,9 @@ export function Lightbox({
           {currentIndex < images.length - 1 && (
             <button
               onClick={handleNext}
-              className="absolute right-4 p-3 text-white/80 hover:text-white transition-colors rounded-full hover:bg-white/10"
+              className="absolute right-4 p-3 text-white/80 bg-black/20 hover:text-white transition-colors rounded-full hover:bg-white/10 z-50 "
             >
-              <IconChevronRight className="h-8 w-8" />
+              <IconChevronRight className="h-4 w-4 md:h-8 md:w-8" />
             </button>
           )}
         </motion.div>
