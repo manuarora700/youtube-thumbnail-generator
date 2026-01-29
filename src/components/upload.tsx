@@ -120,7 +120,7 @@ export const FileUpload = ({
         3, // Generate 3 thumbnails
         (newImage: GeneratedImage) => {
           setGeneratedImages((prev) => [...prev, newImage]);
-        }
+        },
       );
 
       if (images.length === 0) {
@@ -129,7 +129,7 @@ export const FileUpload = ({
     } catch (err) {
       console.error("Generation error:", err);
       setError(
-        err instanceof Error ? err.message : "Failed to generate thumbnails"
+        err instanceof Error ? err.message : "Failed to generate thumbnails",
       );
     } finally {
       setIsGenerating(false);
@@ -403,7 +403,7 @@ export const FileUpload = ({
                 "w-full py-3 sm:py-4 px-4 sm:px-6 text-sm sm:text-base font-medium rounded-xl transition-all flex items-center justify-center gap-2",
                 isGenerating || !canGenerate
                   ? "bg-neutral-200 text-neutral-400 cursor-not-allowed"
-                  : "bg-neutral-900 text-white hover:bg-neutral-800 shadow-lg shadow-neutral-900/20"
+                  : "bg-neutral-900 text-white hover:bg-neutral-800 shadow-lg shadow-neutral-900/20",
               )}
             >
               {isGenerating ? (
@@ -414,8 +414,6 @@ export const FileUpload = ({
                 </>
               ) : !apiKey ? (
                 <span className="inline">Add API Key to Generate</span>
-              ) : !apiKey ? (
-                <span className="sm:hidden">Add API Key</span>
               ) : !prompt.trim() ? (
                 <span className="inline">Enter a Prompt to Generate</span>
               ) : (
@@ -469,7 +467,7 @@ export const FileUpload = ({
                           onClick={(e) => {
                             e.stopPropagation();
                             setGeneratedImages((prev) =>
-                              prev.filter((_, i) => i !== idx)
+                              prev.filter((_, i) => i !== idx),
                             );
                           }}
                           className="p-1.5 sm:p-2 bg-white rounded-full hover:bg-neutral-100 transition-colors"
@@ -520,7 +518,7 @@ export function GridPattern() {
               }`}
             />
           );
-        })
+        }),
       )}
     </div>
   );
