@@ -1,10 +1,30 @@
-import React from "react";
-import { Hero } from "./components/hero";
+import React, { useState } from "react";
+import { Sidebar } from "./components/Sidebar";
+import { FileUpload } from "./components/upload";
 
 function App(): React.JSX.Element {
+  const [prompt, setPrompt] = useState("");
+  const [referenceImages, setReferenceImages] = useState<File[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+
   return (
-    <div className="bg-gray-100 min-h-dvh pb-40">
-      <Hero />
+    <div className="flex h-screen bg-gray-50">
+      {/* Sidebar */}
+      <Sidebar
+        prompt={prompt}
+        onPromptChange={setPrompt}
+        referenceImages={referenceImages}
+        onReferenceImagesChange={setReferenceImages}
+        selectedTemplate={selectedTemplate}
+        onTemplateSelect={setSelectedTemplate}
+      />
+
+      {/* Main Content */}
+      <FileUpload
+        prompt={prompt}
+        referenceImages={referenceImages}
+        selectedTemplate={selectedTemplate}
+      />
     </div>
   );
 }
