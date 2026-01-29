@@ -115,7 +115,7 @@ export const FileUpload = ({
         3, // Generate 3 thumbnails
         (newImage: GeneratedImage) => {
           setGeneratedImages((prev) => [...prev, newImage]);
-        }
+        },
       );
 
       if (images.length === 0) {
@@ -124,7 +124,7 @@ export const FileUpload = ({
     } catch (err) {
       console.error("Generation error:", err);
       setError(
-        err instanceof Error ? err.message : "Failed to generate thumbnails"
+        err instanceof Error ? err.message : "Failed to generate thumbnails",
       );
     } finally {
       setIsGenerating(false);
@@ -215,7 +215,7 @@ export const FileUpload = ({
                   "px-3 py-1.5 text-sm font-medium rounded-lg transition-colors",
                   tempApiKey.trim()
                     ? "bg-neutral-900 text-white hover:bg-neutral-800"
-                    : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
+                    : "bg-neutral-200 text-neutral-400 cursor-not-allowed",
                 )}
               >
                 Save
@@ -244,7 +244,7 @@ export const FileUpload = ({
               whileHover="animate"
               className={cn(
                 "p-8 group/file flex items-center justify-center cursor-pointer relative overflow-hidden",
-                files.length > 0 ? "min-h-[300px]" : "min-h-[400px]"
+                files.length > 0 ? "min-h-[300px]" : "min-h-[400px]",
               )}
             >
               <input
@@ -278,7 +278,7 @@ export const FileUpload = ({
                     }}
                     className={cn(
                       "relative group-hover/file:shadow-2xl z-40 bg-white flex items-center justify-center h-32 w-32 rounded-xl",
-                      "shadow-[0px_10px_50px_rgba(0,0,0,0.1)] border border-neutral-200"
+                      "shadow-[0px_10px_50px_rgba(0,0,0,0.1)] border border-neutral-200",
                     )}
                   >
                     {isDragActive ? (
@@ -356,7 +356,7 @@ export const FileUpload = ({
                 "w-full py-4 px-6 text-base font-medium rounded-xl transition-all flex items-center justify-center gap-2",
                 isGenerating || !canGenerate
                   ? "bg-neutral-200 text-neutral-400 cursor-not-allowed"
-                  : "bg-neutral-900 text-white hover:bg-neutral-800 shadow-lg shadow-neutral-900/20"
+                  : "bg-neutral-900 text-white hover:bg-neutral-800 shadow-lg shadow-neutral-900/20",
               )}
             >
               {isGenerating ? (
@@ -419,7 +419,7 @@ export const FileUpload = ({
                           onClick={(e) => {
                             e.stopPropagation();
                             setGeneratedImages((prev) =>
-                              prev.filter((_, i) => i !== idx)
+                              prev.filter((_, i) => i !== idx),
                             );
                           }}
                           className="p-2 bg-white rounded-full hover:bg-neutral-100 transition-colors"
@@ -470,7 +470,7 @@ export function GridPattern() {
               }`}
             />
           );
-        })
+        }),
       )}
     </div>
   );
