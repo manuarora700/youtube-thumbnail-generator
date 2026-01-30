@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { IconPlus, IconX, IconCheck, IconLoader2 } from "@tabler/icons-react";
 import { cn, extractYouTubeVideoId, fetchYouTubeThumbnail } from "../lib/utils";
+import { PROMPT_TEMPLATES, TEMPLATE_CATEGORIES } from "../lib/promptTemplates";
 
 interface SidebarProps {
   prompt: string;
@@ -35,6 +36,7 @@ export function Sidebar({
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [isLoadingThumbnail, setIsLoadingThumbnail] = useState(false);
   const [youtubeError, setYoutubeError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
   // Close sidebar on escape key
   useEffect(() => {
@@ -161,6 +163,76 @@ export function Sidebar({
               placeholder="Describe your thumbnail... e.g., 'A tech review thumbnail with bold text and vibrant colors'"
               className="w-full h-24 sm:h-32 p-3 text-sm text-neutral-700 bg-neutral-50 border border-neutral-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:border-transparent placeholder:text-neutral-400"
             />
+          </div>
+
+          {/* Prompt Templates Section */}
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-2 ">
+              Prompt Templates
+              <span className="text-neutral-400 font-normal ml-1">
+                (click to use)
+              </span>
+            </label>
+            <p className="text-xs text-neutral-500 mb-3">
+              Quick-start prompts for common thumbnail types
+            </p>
+
+            {/* Category Tabs */}
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              <button
+                onClick={() => setSelectedCategory("All")}
+                className={cn(
+                  "px-2 py-1 text-xs rounded-md transition-colors",
+                  selectedCategory === "All"
+                    ? "bg-neutral-900 text-white"
+                    : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+                )}
+              >
+                All
+              </button>
+              {TEMPLATE_CATEGORIES.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={cn(
+                    "px-2 py-1 text-xs rounded-md transition-colors",
+                    selectedCategory === category
+                      ? "bg-neutral-900 text-white"
+                      : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+                  )}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+
+            {/* Template Cards */}
+            <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto border border-neutral-200 rounded-lg">
+              {PROMPT_TEMPLATES
+                .filter(t => selectedCategory === "All" || t.category === selectedCategory)
+                .map((template) => (
+                  <button
+                    key={template.id}
+                    onClick={() => onPromptChange(template.prompt)}
+                    className={cn(
+                      "p-2 text-left rounded-lg border transition-all hover:border-neutral-400 hover:shadow-sm",
+                      prompt === template.prompt
+                        ? "border-neutral-900 bg-neutral-50"
+                        : "border-neutral-200 bg-white"
+                    )}
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="text-sm">{template.icon}</span>
+                      <span className="text-xs font-medium text-neutral-700 truncate">
+                        {template.name}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-neutral-500 line-clamp-2">
+                      {template.prompt.slice(0, 60)}...
+                    </p>
+                  </button>
+                ))}
+            </div>
           </div>
 
           {/* Template Thumbnails Section */}
