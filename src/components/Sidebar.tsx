@@ -167,7 +167,7 @@ export function Sidebar({
 
           {/* Prompt Templates Section */}
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
+            <label className="block text-sm font-medium text-neutral-700 mb-2 ">
               Prompt Templates
               <span className="text-neutral-400 font-normal ml-1">
                 (click to use)
@@ -207,7 +207,7 @@ export function Sidebar({
             </div>
 
             {/* Template Cards */}
-            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+            <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto border border-neutral-200 rounded-lg">
               {PROMPT_TEMPLATES
                 .filter(t => selectedCategory === "All" || t.category === selectedCategory)
                 .map((template) => (
